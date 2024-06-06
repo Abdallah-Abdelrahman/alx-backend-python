@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''Module difines element_length function'''
+'''Module defines element_length function'''
 from typing import List, Iterable, Sequence, Tuple
 
 
