@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 '''Module defines sum_list function'''
+from typing import List
 
 
-def sum_list(input_list: list[float]) -> float:
+def sum_list(input_list: List[float]) -> float:
     '''sum list elements
 
     Returns:
@@ -12,4 +13,3 @@ def sum_list(input_list: list[float]) -> float:
     for n in input_list:
         sum += n
     return sum
-
