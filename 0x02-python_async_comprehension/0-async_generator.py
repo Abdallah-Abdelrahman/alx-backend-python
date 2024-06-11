@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 '''Module defines `async_generator`'''
+from typing import Any, AsyncGenerator
 import asyncio
 import random
-from typing import Any, AsyncGenerator
 
 
 async def async_generator() -> AsyncGenerator[float, Any]:
