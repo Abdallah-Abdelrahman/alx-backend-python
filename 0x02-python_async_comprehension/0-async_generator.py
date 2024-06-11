@@ -5,7 +5,7 @@ import random
 from typing import AsyncGenerator
 
 
-async def async_generator() -> AsyncGenerator:
+async def async_generator() -> AsyncGenerator[float]:
     '''coroutine will loop 10 times.
 
     Yields:
