@@ -5,10 +5,10 @@ import random
 from typing import AsyncGenerator
 
 
-async def async_generator() -> AsyncGenerator[float, float]:
+async def async_generator() -> AsyncGenerator[float, None]:
     '''coroutine will loop 10 times.
 
-    Returns:
+    Yields:
         float: between 0 and 10
     '''
     i = 0
