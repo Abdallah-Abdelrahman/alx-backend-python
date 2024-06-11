@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''Module defines `async_comprehension`'''
 
-from typing import AsyncGenerator, List
+from typing import List
 
 
 async_generator = __import__('0-async_generator').async_generator
