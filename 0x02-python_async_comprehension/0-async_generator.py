@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 '''Module defines `async_generator`'''
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, Generator
 import asyncio
 import random
 
 
-async def async_generator() -> AsyncGenerator[float, Any]:
+async def async_generator() -> Generator[float, None, None]:
     '''coroutine will loop 10 times.
 
     Yields:
