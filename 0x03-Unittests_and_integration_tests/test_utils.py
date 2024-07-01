@@ -56,16 +56,16 @@ class TestGetJson(unittest.TestCase):
 
 class TestMemoize(unittest.TestCase):
     '''class definition'''
-    def test_memoize(self):
+    def test_memoize(self) -> None:
         '''define inner class for memoization'''
         class TestClass:
             '''inner class'''
-            def a_method(self):
+            def a_method(self) -> int:
                 '''return 42'''
                 return 42
 
             @memoize
-            def a_property(self):
+            def a_property(self) -> int:
                 '''memoized method'''
                 return self.a_method()
 
