@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
 import unittest
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 from typing import Mapping, Sequence, Type
 from parameterized import parameterized
 from utils import access_nested_map, get_json, memoize
@@ -58,8 +58,10 @@ class TestMemoize(unittest.TestCase):
     '''class definition'''
     def test_memoize(self) -> None:
         '''define inner class for memoization'''
+
         class TestClass:
             '''inner class'''
+
             def a_method(self) -> int:
                 '''return 42'''
                 return 42
@@ -77,4 +79,4 @@ class TestMemoize(unittest.TestCase):
             self.assertEqual(test_instance.a_property, 42)
 
             # Assert a_method was called only once
-            mock.assert_called_once()
+            mock.assert_called_once_with()
