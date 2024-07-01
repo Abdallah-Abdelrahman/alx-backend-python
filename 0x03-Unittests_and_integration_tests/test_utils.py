@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
+from parameterized import parameterized
 from typing import Mapping, Sequence, Type
 import unittest
 from unittest.mock import Mock, patch
-from parameterized import parameterized
 
 from utils import access_nested_map, get_json, memoize
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    '''class definition'''
+    '''class definition.
+    Methods: test_access_nested_map, test_access_nested_map_exception,
+    '''
     @parameterized.expand([
         ({"a": 1}, ["a",], 1),
         ({"a": {"b": 2}}, ["a",], {"b": 2}),
         ({"a": {"b": 2}}, ["a", "b"], 2)
         ])
     def test_access_nested_map(self, nested_map, path, expected):
-        '''test nested map'''
+        '''test nested map with various keys'''
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
     @parameterized.expand([
@@ -28,19 +30,19 @@ class TestAccessNestedMap(unittest.TestCase):
             nested_map: Mapping,
             path: Sequence,
             exception: Type[BaseException]) -> None:
-        '''test key error'''
+        '''test key error for invalid keys'''
         with self.assertRaises(exception):
             access_nested_map(nested_map, path)
 
 
 class TestGetJson(unittest.TestCase):
-    '''class definition'''
+    '''class definition to mock http calls'''
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False})
     ])
-    def test_get_json(self, url, payload):
-        '''mock get reqeust'''
+    def test_get_json(self, url, payload) -> None:
+        '''mock get reqeust and ensure method called once'''
         mock_response = Mock()
         mock_response.json.return_value = payload
 
@@ -56,21 +58,21 @@ class TestGetJson(unittest.TestCase):
 
 
 class TestMemoize(unittest.TestCase):
-    '''class definition'''
+    '''class definition for memoization'''
 
     def test_memoize(self) -> None:
         '''define inner class for memoization'''
 
         class TestClass:
-            '''inner class'''
+            '''inner class that has memoized method'''
 
             def a_method(self) -> int:
-                '''return 42'''
+                '''method returns constant 42'''
                 return 42
 
             @memoize
             def a_property(self) -> int:
-                '''memoized method'''
+                '''memoized method by decorator `memoized`'''
                 return self.a_method()
 
         with patch.object(TestClass, 'a_method', return_value=42) as mock:
