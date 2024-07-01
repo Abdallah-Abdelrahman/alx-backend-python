@@ -1,11 +1,51 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
+from typing import Any, Dict
 from unittest import TestCase
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock, Mock, PropertyMock, patch
 from parameterized import parameterized, parameterized_class
 from requests import HTTPError
 from client import GithubOrgClient
 from fixtures import TEST_PAYLOAD
+
+
+PAYLOAD = {
+            "repos_url": "https://api.github.com/orgs/google/repos",
+            "repos": [
+                {
+                    "id": 7697149,
+                    "node_id": "MDEwOlJlcG9zaXRvcnk3Njk3MTQ5",
+                    "name": "episodes.dart",
+                    "full_name": "google/episodes.dart",
+                    "private": False,
+                    "forks": 22,
+                    "open_issues": 0,
+                    "watchers": 12,
+                    "default_branch": "master",
+                    "permissions": {
+                        "admin": False,
+                        "push": False,
+                        "pull": True
+                    },
+                },
+                {
+                    "id": 7776515,
+                    "node_id": "MDEwOlJlcG9zaXRvcnk3Nzc2NTE1",
+                    "name": "cpp-netlib",
+                    "full_name": "google/cpp-netlib",
+                    "private": False,
+                    "forks": 59,
+                    "open_issues": 0,
+                    "watchers": 292,
+                    "default_branch": "master",
+                    "permissions": {
+                        "admin": False,
+                        "push": False,
+                        "pull": True
+                    },
+                },
+            ],
+}
 
 
 class TestGithubOrgClient(TestCase):
@@ -25,30 +65,24 @@ class TestGithubOrgClient(TestCase):
         mock_get_json.assert_called_once_with(
                 'https://api.github.com/orgs/{}'.format(org_name))
 
-    @patch.object(GithubOrgClient, 'org', new_callable=PropertyMock)
-    def test_public_repos_url(self, mock_org):
+    def test_public_repos_url(self):
         '''Test that GithubOrgClient._public_repos_url returns the correct URL
         '''
-        mock_payload = {
-            'repos_url': 'https://api.github.com/orgs/testorg/repos'
-        }
-        mock_org.return_value = mock_payload
-
-        client = GithubOrgClient('testorg')
-        result = client._public_repos_url
-
-        self.assertEqual(result, mock_payload['repos_url'])
-        mock_org.assert_called_once()
+        with patch(
+            "client.GithubOrgClient.org", new_callable=PropertyMock
+        ) as mocked_property:
+            mocked_property.return_value = {
+                "repos_url": "https://api.github.com/orgs/google/repos"
+            }
+            self.assertEqual(
+                GithubOrgClient("google")._public_repos_url,
+                "https://api.github.com/orgs/google/repos",
+            )
 
     @patch('client.get_json')
-    def test_public_repos(self, mock_get_json):
+    def test_public_repos(self, mock_get_json: MagicMock):
         '''Test GithubOrgClient.public_repos'''
-        mock_repos_payload = [
-            {'name': 'repo1'},
-            {'name': 'repo2'},
-            {'name': 'repo3'}
-        ]
-        mock_get_json.return_value = mock_repos_payload
+        mock_get_json.return_value = PAYLOAD
 
         with patch.object(GithubOrgClient,
                           '_public_repos_url',
@@ -70,7 +104,10 @@ class TestGithubOrgClient(TestCase):
         ({"license": {"key": "other_license"}}, "my_license", False),
         ({}, "my_license", False)
     ])
-    def test_has_license(self, repo, license_key, expected_result):
+    def test_has_license(self,
+                         repo: Dict[str, Any],
+                         license_key: str,
+                         expected_result: bool):
         '''Test GithubOrgClient.has_license'''
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected_result)
