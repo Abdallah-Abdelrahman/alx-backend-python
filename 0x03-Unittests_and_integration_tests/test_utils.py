@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
 from parameterized import parameterized
-from typing import Mapping, Sequence, Type
+from typing import Any, Dict, Mapping, Sequence, Type, Union
 import unittest
 from unittest.mock import Mock, patch
 
@@ -17,7 +17,10 @@ class TestAccessNestedMap(unittest.TestCase):
         ({"a": {"b": 2}}, ["a",], {"b": 2}),
         ({"a": {"b": 2}}, ["a", "b"], 2)
         ])
-    def test_access_nested_map(self, nested_map, path, expected):
+    def test_access_nested_map(self,
+                               nested_map: Mapping,
+                               path: Sequence,
+                               expected: Union[Dict[str, Any], int]):
         '''test nested map with various keys'''
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
@@ -29,7 +32,7 @@ class TestAccessNestedMap(unittest.TestCase):
             self,
             nested_map: Mapping,
             path: Sequence,
-            exception: Type[BaseException]) -> None:
+            exception: Any) -> None:
         '''test key error for invalid keys'''
         with self.assertRaises(exception):
             access_nested_map(nested_map, path)
@@ -41,7 +44,7 @@ class TestGetJson(unittest.TestCase):
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False})
     ])
-    def test_get_json(self, url, payload) -> None:
+    def test_get_json(self, url: str, payload: Dict[str, bool]) -> None:
         '''mock get reqeust and ensure method called once'''
         mock_response = Mock()
         mock_response.json.return_value = payload
