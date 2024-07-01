@@ -82,7 +82,7 @@ class TestGithubOrgClient(TestCase):
     @patch('client.get_json')
     def test_public_repos(self, mock_get_json: MagicMock):
         '''Test GithubOrgClient.public_repos'''
-        mock_get_json.return_value = PAYLOAD
+        mock_get_json.return_value = PAYLOAD['repos']
 
         with patch.object(GithubOrgClient,
                           '_public_repos_url',
@@ -94,7 +94,7 @@ class TestGithubOrgClient(TestCase):
             client = GithubOrgClient('testorg')
             result = client.public_repos()
 
-            self.assertEqual(result, ['repo1', 'repo2', 'repo3'])
+            self.assertEqual(result, ['episodes.dart', 'cpp-netlib'])
             mock_public_repos_url.assert_called_once()
             mock_get_json.assert_called_once_with(
                     'https://api.github.com/orgs/testorg/repos')
