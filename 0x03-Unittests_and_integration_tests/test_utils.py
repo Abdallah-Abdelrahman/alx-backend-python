@@ -56,6 +56,7 @@ class TestGetJson(unittest.TestCase):
 
 class TestMemoize(unittest.TestCase):
     '''class definition'''
+
     def test_memoize(self) -> None:
         '''define inner class for memoization'''
 
