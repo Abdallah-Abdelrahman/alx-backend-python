@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
+from typing import Mapping, Sequence, Type
 import unittest
 from parameterized import parameterized
 from utils import access_nested_map
@@ -19,7 +20,10 @@ class TestAccessNestedMap(unittest.TestCase):
     @parameterized.expand([
         ({"a": 1}, ["b"], KeyError)
     ])
-    def test_access_nested_map_exception(self, nested_map, path, exception):
+    def test_access_nested_map_exception(self,
+                                         nested_map: Mapping,
+                                         path: Sequence,
+                                         exception: Type[BaseException]) -> None:
         '''test key error'''
         with self.assertRaises(exception):
             access_nested_map(nested_map, path)
