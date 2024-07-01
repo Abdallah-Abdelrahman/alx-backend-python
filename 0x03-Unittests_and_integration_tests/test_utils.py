@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
-import unittest
 from unittest.mock import Mock, patch
 from typing import Mapping, Sequence, Type
 from parameterized import parameterized
 from utils import access_nested_map, get_json, memoize
+import unittest
 
 
 class TestAccessNestedMap(unittest.TestCase):

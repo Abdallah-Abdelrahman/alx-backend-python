@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
-import unittest
-from unittest.mock import patch, PropertyMock
-from parameterized import parameterized
+from requests import HTTPError
 from client import GithubOrgClient
+from unittest.mock import Mock, patch, PropertyMock
+from fixtures import TEST_PAYLOAD
+from parameterized import parameterized, parameterized_class
+import unittest
+
+org_payload = TEST_PAYLOAD[0][0]
+repos_payload = TEST_PAYLOAD[0][1],
+expected_repos = TEST_PAYLOAD[0][2],
+apache2_repos = TEST_PAYLOAD[0][3],
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -72,3 +79,49 @@ class TestGithubOrgClient(unittest.TestCase):
         '''Test GithubOrgClient.has_license'''
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected_result)
+
+
+@parameterized_class([
+    {
+        'org_payload': org_payload,
+        'repos_payload': repos_payload,
+        'expected_repos': expected_repos,
+        'apache2_repos': apache2_repos
+    }
+])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    '''class definition'''
+    @classmethod
+    def setUpClass(cls) -> None:
+        '''Setup class method to patch requests.get'''
+        cls.route_payload = {
+            "https://api.github.com/orgs/google": cls.org_payload,
+            "https://api.github.com/orgs/google/repos": cls.repos_payload,
+        }
+
+        cls.get_patcher = patch("requests.get", side_effect=cls.get_payload)
+        cls.get_patcher.start()
+
+        cls.client = GithubOrgClient("google")
+
+    @classmethod
+    def tearDownClass(cls):
+        '''Teardown class method to stop the patcher'''
+        cls.get_patcher.stop()
+
+    @classmethod
+    def get_payload(cls, url: str) -> Mock:
+        '''Return a mock response object for the given URL.'''
+        if url in cls.route_payload:
+            return Mock(json=lambda: cls.route_payload[url])
+        raise HTTPError
+
+    def test_public_repos(self) -> None:
+        '''Tests the public_repos method.'''
+        self.assertEqual(self.client.public_repos(), self.expected_repos)
+
+    def test_public_repos_with_license(self) -> None:
+        '''Tests the public_repos method with a license.'''
+        self.assertEqual(
+                self.client.public_repos(license='apache-2.0'),
+                self.apache2_repos)
