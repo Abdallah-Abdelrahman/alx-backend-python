@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-'''Module defines:
-`TestAccessNestedMap`, `TestGetJson`, `TestMemoize` classes.
+'''test_utils.py
+   This module contains the test cases for the utils module
 '''
 from parameterized import parameterized
 import requests
@@ -11,40 +11,14 @@ from utils import access_nested_map, get_json, memoize
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    '''class definition.
-    Methods: test_access_nested_map, test_access_nested_map_exception,
     '''
-    @parameterized.expand([
-        ({'a': 1}, ['a',], 1),
-        ({'a': {'b': 2}}, ['a',], {'b': 2}),
-        ({'a': {'b': 2}}, ['a', 'b'], 2)
-        ])
-    def test_access_nested_map(self,
-                               nested_map: Dict[str, Any],
-                               path: List[str],
-                               expected: Union[Dict[str, Any], int]) -> None:
-        '''test nested map with various keys'''
-        self.assertEqual(access_nested_map(nested_map, path), expected)
-
-    @parameterized.expand([
-        ({}, ['a'], KeyError),
-        ({'a': 1}, ['a', 'b'], KeyError),
-    ])
-    def test_access_nested_map_exception(
-            self,
-            nested_map: Dict[str, Any],
-            path: List[str],
-            exception: Any) -> None:
-        '''test key error for invalid keys'''
-        with self.assertRaises(exception):
-            access_nested_map(nested_map, path)
-
-
-class TestGetJson(unittest.TestCase):
-    '''Test the get_json method
+        Test the access_nested_map method
         Methods:
-            test_get_json - test the get_json method, which returns the
-            payload of a request
+            test_access_nested_map - test the access_nested_map method, which
+            returns the value of a nested map given a list of keys to traverse
+            the map
+            test_access_nested_map_exception - test the access_nested_map
+            method when a key is not found in the nested map
     '''
     @parameterized.expand([
         ({'a': 1}, ['a'], 1),
@@ -79,6 +53,34 @@ class TestGetJson(unittest.TestCase):
         '''
         with self.assertRaises(expected):
             access_nested_map(nested_map, path)
+
+
+class TestGetJson(unittest.TestCase):
+    '''Test the get_json method
+        Methods:
+            test_get_json - test the get_json method, which returns the
+            payload of a request
+    '''
+    @parameterized.expand([
+        ('http://example.com', {'payload': True}),
+        ('http://holberton.io', {'payload': False}),
+    ])
+    def test_get_json(self, test_url: str,
+                      test_payload: Dict[str, bool]) -> None:
+        '''test_get_json method
+            to test that utils.get_json returns the expected result.
+            Args:
+                test_url: a url
+                test_payload: a payload
+        '''
+        mock_response = Mock()
+        mock_response.json.return_value = test_payload
+        with patch.object(requests, 'get',
+                          return_value=mock_response) as mock_method:
+            test_response = get_json(test_url)
+            self.assertEqual(test_response, test_payload)
+
+        mock_method.assert_called_once()
 
 
 class TestMemoize(unittest.TestCase):
