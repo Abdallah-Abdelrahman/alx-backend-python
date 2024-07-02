@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-'''Module defines `TestAccessNestedMap` class'''
+'''Module defines:
+`TestAccessNestedMap`, `TestGetJson`, `TestMemoize`
+classes.
+'''
 from parameterized import parameterized
 import requests
 from typing import Any, Dict, List, Union
@@ -45,7 +48,11 @@ class TestGetJson(unittest.TestCase):
         ("http://holberton.io", {"payload": False})
     ])
     def test_get_json(self, url: str, payload: Dict[str, bool]) -> None:
-        '''mock get reqeust and ensure method called once'''
+        '''mock get reqeust and ensure method called once
+        Args:
+            url:
+            payload:
+        '''
         mock_response = Mock()
         mock_response.json.return_value = payload
 
@@ -63,29 +70,42 @@ class TestGetJson(unittest.TestCase):
 
 
 class TestMemoize(unittest.TestCase):
-    '''class definition for memoization'''
-
+    ''' Test the memoize method
+        Methods:
+            test_memoize - test the memoize method, which caches the output of
+            a method
+    '''
     def test_memoize(self) -> None:
-        '''define inner class for memoization'''
+        '''
+            Test the memoize method
+            The memoize method should cache the output of a method
+            Calls to the method with the same arguments should return
+            the cached output
+
+            Class TestClass has a method a_method that returns 42
+            Class TestClass has a property a_property that is memoized
+            Calls to a_property should return 42
+        '''
 
         class TestClass:
-            '''inner class that has memoized method'''
-
+            ''' TestClass with a_method and a_property
+            '''
             def a_method(self) -> int:
-                '''method returns constant 42'''
+                ''' a_method that returns 42
+                '''
                 return 42
 
             @memoize
             def a_property(self) -> int:
-                '''memoized method by decorator `memoized`'''
+                ''' a_property that is memoized
+                '''
                 return self.a_method()
 
-        test_instance = TestClass()
-        with patch.object(TestClass, 'a_method', return_value=42) as mock:
-
-            # Assert the results are correct
-            self.assertEqual(test_instance.a_property, 42)
-            self.assertEqual(test_instance.a_property, 42)
-
-            # Assert a_method was called only once
-            mock.assert_called_once()
+        test = TestClass()
+        with patch.object(TestClass, 'a_method',
+                          wraps=test.a_method) as mock_method:
+            out1 = test.a_property
+            out2 = test.a_property
+            self.assertEqual(out1, 42)
+            self.assertEqual(out2, 42)
+            mock_method.assert_called_once()
