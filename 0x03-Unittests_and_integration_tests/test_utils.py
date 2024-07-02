@@ -47,25 +47,38 @@ class TestGetJson(unittest.TestCase):
             payload of a request
     '''
     @parameterized.expand([
-        ('http://example.com', {'payload': True}),
-        ('http://holberton.io', {'payload': False}),
+        ({'a': 1}, ['a'], 1),
+        ({'a': {'b': 2}}, ['a'], {'b': 2}),
+        ({'a': {'b': 2}}, ['a', 'b'], 2)
     ])
-    def test_get_json(self, test_url: str,
-                      test_payload: Dict[str, bool]) -> None:
-        '''test_get_json method
-            to test that utils.get_json returns the expected result.
-            Args:
-                test_url: a url
-                test_payload: a payload
+    def test_access_nested_map(self, nested_map: Dict[str, Any],
+                               path: List[str], expected: Union[Dict[str, Any],
+                                                                int]) -> None:
         '''
-        mock_response = Mock()
-        mock_response.json.return_value = test_payload
-        with patch.object(requests, 'get',
-                          return_value=mock_response) as mock_method:
-            test_response = get_json(test_url)
-            self.assertEqual(test_response, test_payload)
+            Test the access_nested_map method
+            Args:
+                nested_map: a nested map
+                path: a list of keys to traverse the nested map
+                expected: the expected value of the nested map
+        '''
+        self.assertEqual(access_nested_map(nested_map, path), expected)
 
-        mock_method.assert_called_once()
+    @parameterized.expand([
+        ({}, ['a'], KeyError),
+        ({'a': 1}, ['a', 'b'], KeyError)
+    ])
+    def test_access_nested_map_exception(self, nested_map: Dict[str, Any],
+                                         path: List[str],
+                                         expected: Any) -> None:
+        '''
+            Test the access_nested_map method
+            Args:
+                nested_map: a nested map with no key
+                path: a list of keys to traverse the nested map
+                expected: the expected exception
+        '''
+        with self.assertRaises(expected):
+            access_nested_map(nested_map, path)
 
 
 class TestMemoize(unittest.TestCase):
