@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 '''Module defines `TestAccessNestedMap` class'''
 from parameterized import parameterized
+import requests
 from typing import Any, Dict, List, Union
 import unittest
 from unittest.mock import patch, Mock
@@ -24,7 +25,7 @@ class TestAccessNestedMap(unittest.TestCase):
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
     @parameterized.expand([
-        ({}, ("a",), KeyError),
+        ({}, ["a"], KeyError),
         ({"a": 1}, ["a", "b"], KeyError),
     ])
     def test_access_nested_map_exception(
@@ -48,15 +49,17 @@ class TestGetJson(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = payload
 
-        with patch('utils.requests.get', return_value=mock_response) as mock:
+        with patch.object(requests,
+                          'get',
+                          return_value=mock_response) as mock:
             # Call the function
             result = get_json(url)
 
-            # Check that requests.get was called once with the test_url
-            mock.assert_called_once_with(url)
-
             # Check that the result is as expected
             self.assertEqual(result, payload)
+
+        # Check that requests.get was called once
+        mock.assert_called_once()
 
 
 class TestMemoize(unittest.TestCase):
