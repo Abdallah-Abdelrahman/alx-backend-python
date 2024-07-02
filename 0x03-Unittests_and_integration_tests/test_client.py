@@ -10,38 +10,38 @@ from fixtures import TEST_PAYLOAD
 
 
 PAYLOAD = {
-            "repos_url": "https://api.github.com/orgs/google/repos",
-            "repos": [
+            'repos_url': 'https://api.github.com/orgs/google/repos',
+            'repos': [
                 {
-                    "id": 7697149,
-                    "node_id": "MDEwOlJlcG9zaXRvcnk3Njk3MTQ5",
-                    "name": "episodes.dart",
-                    "full_name": "google/episodes.dart",
-                    "private": False,
-                    "forks": 22,
-                    "open_issues": 0,
-                    "watchers": 12,
-                    "default_branch": "master",
-                    "permissions": {
-                        "admin": False,
-                        "push": False,
-                        "pull": True
+                    'id': 7697149,
+                    'node_id': 'MDEwOlJlcG9zaXRvcnk3Njk3MTQ5',
+                    'name': 'episodes.dart',
+                    'full_name': 'google/episodes.dart',
+                    'private': False,
+                    'forks': 22,
+                    'open_issues': 0,
+                    'watchers': 12,
+                    'default_branch': 'master',
+                    'permissions': {
+                        'admin': False,
+                        'push': False,
+                        'pull': True
                     },
                 },
                 {
-                    "id": 7776515,
-                    "node_id": "MDEwOlJlcG9zaXRvcnk3Nzc2NTE1",
-                    "name": "cpp-netlib",
-                    "full_name": "google/cpp-netlib",
-                    "private": False,
-                    "forks": 59,
-                    "open_issues": 0,
-                    "watchers": 292,
-                    "default_branch": "master",
-                    "permissions": {
-                        "admin": False,
-                        "push": False,
-                        "pull": True
+                    'id': 7776515,
+                    'node_id': 'MDEwOlJlcG9zaXRvcnk3Nzc2NTE1',
+                    'name': 'cpp-netlib',
+                    'full_name': 'google/cpp-netlib',
+                    'private': False,
+                    'forks': 59,
+                    'open_issues': 0,
+                    'watchers': 292,
+                    'default_branch': 'master',
+                    'permissions': {
+                        'admin': False,
+                        'push': False,
+                        'pull': True
                     },
                 },
             ],
@@ -69,14 +69,14 @@ class TestGithubOrgClient(TestCase):
         '''Test that GithubOrgClient._public_repos_url returns the correct URL
         '''
         with patch(
-            "client.GithubOrgClient.org", new_callable=PropertyMock
+            'client.GithubOrgClient.org', new_callable=PropertyMock
         ) as mocked_property:
             mocked_property.return_value = {
-                "repos_url": "https://api.github.com/orgs/google/repos"
+                'repos_url': 'https://api.github.com/orgs/google/repos'
             }
             self.assertEqual(
-                GithubOrgClient("google")._public_repos_url,
-                "https://api.github.com/orgs/google/repos",
+                GithubOrgClient('google')._public_repos_url,
+                'https://api.github.com/orgs/google/repos',
             )
 
     @patch('client.get_json')
@@ -100,9 +100,9 @@ class TestGithubOrgClient(TestCase):
                     'https://api.github.com/orgs/testorg/repos')
 
     @parameterized.expand([
-        ({"license": {"key": "my_license"}}, "my_license", True),
-        ({"license": {"key": "other_license"}}, "my_license", False),
-        ({}, "my_license", False)
+        ({'license': {'key': 'my_license'}}, 'my_license', True),
+        ({'license': {'key': 'other_license'}}, 'my_license', False),
+        ({}, 'my_license', False)
     ])
     def test_has_license(self,
                          repo: Dict[str, Any],
@@ -113,54 +113,57 @@ class TestGithubOrgClient(TestCase):
         self.assertEqual(result, expected_result)
 
 
-@parameterized_class([
-    {
-        'org_payload': TEST_PAYLOAD[0][0],
-        'repos_payload': TEST_PAYLOAD[0][1],
-        'expected_repos': TEST_PAYLOAD[0][2],
-        'apache2_repos': TEST_PAYLOAD[0][3]
-    }
-])
+@parameterized_class(('org_payload', 'repos_payload',
+                      'expected_repos', 'apache2_repos'),
+                     TEST_PAYLOAD)
 class TestIntegrationGithubOrgClient(TestCase):
-    '''Integration tests for the GithubOrgClient class.'''
-
+    ''' TestIntegrationGithubOrgClient class
+        Test the integration of the GithubOrgClient class
+        By mocking the requests.get method
+    '''
     @classmethod
-    def setUpClass(cls) -> None:
-        '''Set up the tests class'''
+    def setUpClass(cls):
+        ''' Set up class
+        '''
         def side_effect(url: str):
-            '''side effect function to be send to `patch`'''
+            '''
+            This is a side effect method to be added to the requests.get
+            mock to return a mock response with certain attributes
+            '''
             response_mock = Mock()
-            if url == "https://api.github.com/orgs/google":
+            if url == 'https://api.github.com/orgs/google':
                 response_mock.json.side_effect = lambda: cls.org_payload
-            elif url == "https://api.github.com/orgs/google/repos":
+            elif url == 'https://api.github.com/orgs/google/repos':
                 response_mock.json.side_effect = lambda: cls.repos_payload
             else:
                 response_mock.json.side_effect = lambda: None
             return response_mock
 
         cls.get_patcher = patch('requests.get', side_effect=side_effect)
-        cls.mock = cls.get_patcher.start()
+        cls.mock_get = cls.get_patcher.start()
 
     @classmethod
-    def tearDownClass(cls) -> None:
-        '''Clean up the test class'''
+    def tearDownClass(cls):
+        ''' Tear down class
+        '''
         cls.get_patcher.stop()
 
-    def test_public_repos(self) -> None:
-        '''Tests the public_repos method.'''
-        client_instance = GithubOrgClient('google')
-        self.assertEqual(client_instance.org, self.org_payload)
-        self.assertEqual(client_instance.repos_payload, self.repos_payload)
-        self.assertEqual(client_instance.public_repos(), self.expected_repos)
-        self.assertEqual(client_instance.public_repos("SomeLicence"), [])
-        self.mock.assert_called()
+    def test_public_repos(self):
+        ''' Integration test: public repos'''
+        test_class = GithubOrgClient('google')
+
+        self.assertEqual(test_class.org, self.org_payload)
+        self.assertEqual(test_class.repos_payload, self.repos_payload)
+        self.assertEqual(test_class.public_repos(), self.expected_repos)
+        self.assertEqual(test_class.public_repos('SomeLicence'), [])
+        self.mock_get.assert_called()
 
     def test_public_repos_with_license(self):
-        """ Integration test for public repos with License """
-        test_class = GithubOrgClient("google")
+        ''' Integration test for public repos with License '''
+        test_class = GithubOrgClient('google')
 
         self.assertEqual(test_class.public_repos(), self.expected_repos)
-        self.assertEqual(test_class.public_repos("SomeLicence"), [])
+        self.assertEqual(test_class.public_repos('SomeLicence'), [])
         self.assertEqual(
-                test_class.public_repos("apache-2.0"), self.apache2_repos)
-        self.mock.assert_called()
+                test_class.public_repos('apache-2.0'), self.apache2_repos)
+        self.mock_get.assert_called()
