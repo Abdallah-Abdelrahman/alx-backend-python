@@ -80,7 +80,7 @@ class TestGetJson(unittest.TestCase):
             test_response = get_json(test_url)
             self.assertEqual(test_response, test_payload)
 
-        mock_method.assert_called_once()
+            mock_method.assert_called_once()
 
 
 class TestMemoize(unittest.TestCase):
